@@ -65,6 +65,7 @@ def ref(m):
         # multiply inv(m[pR][pC]) * m[pR]
         m[i] = (1.0 / m[i][j]) * m[i]
 
+        # TODO: What if 1, -1
         for k in range(i+1, m.shape[0]):
             m[k] = -1.0 * m[k][j] * m[i] + m[k]
 
@@ -72,7 +73,7 @@ def ref(m):
         j += 1
         
 
-    print(m)
+    return m
 
 def is_rref(m):
     is_rref = True
@@ -104,10 +105,42 @@ def is_rref(m):
 
     return is_rref
 
+def get_last_pivot_element(m, i):
+    j = 0
+
+    while is_zero_col(m[i,:]):
+        i -= 1
+    
+    while j < m.shape[1] and m[i][j] != 1:
+        j += 1
+    
+    return i,j
+
+
 def rref(m):
-    pass
+    i = m.shape[0] - 1
+
+    m = ref(m) 
+    while not(is_rref(m)):
+        r, c = get_last_pivot_element(m, i)
+
+        k = r - 1
+        while k >= 0:
+            m[k] = - 1.0 * m[k][c] * m[r] + m[k]
+            k -= 1
+
+        i -= 1
+    
+    return m
 
 
+"""
+GOAL:
+[1     0     0     9        9.5]
+[0     1     0    -4.25    -2.5]
+[0     0     1     1.5      2.0]
+[0     0     0     0        0  ]
+"""
 mA = np.array([ [0, 2, 3, -4, 1],
                 [0, 0, 2, 3, 4],
                 [2, 2, -5, 2, 4],
@@ -126,10 +159,6 @@ mD = np.array([[1,2,4],[0,1,-3],[0,0,1]])
 
 mI = np.array([[1,0,0],[0,1,0],[0,0,1]])
 
-mE = np.array([[1,0,0,4],
-               [0,1,0,4],
-               [0,0,1,4],
-               [0,0,0,0]])
+mE = ref(mB)
 
-print(is_ref(mE))
-print(is_rref(mE))
+print(rref(mD))
