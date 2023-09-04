@@ -23,6 +23,7 @@ def is_ref(m):
     is_ref = True
     i = 0
     lead_ind = -1
+    has_zero_row = False
 
     while i < m.shape[0] and is_ref:
         j = 0
@@ -33,6 +34,10 @@ def is_ref(m):
                 if j > lead_ind:
                     has_lead = True
                     lead_ind = j
+
+                    # If a previous row is a 0 row
+                    if has_zero_row:
+                        is_ref = False
                 else:
                     is_ref = False
             elif m[i][j] == 0:
@@ -40,8 +45,8 @@ def is_ref(m):
             else:
                 is_ref = False
         
-        if not(has_lead) and i != m.shape[0] - 1:
-            is_ref = False
+        if not(has_lead):
+            has_zero_row = True
 
         i += 1
     
@@ -71,11 +76,13 @@ def ref(m):
 
 def is_rref(m):
     is_rref = True
+    reached_zero_row = False
 
     if is_ref(m):
         i = 0
         j = 0
-        while i < m.shape[0]:
+
+        while i < m.shape[0] and not(reached_zero_row):
             is_col_clear = False
 
             while j < m.shape[1] and not(is_col_clear) and is_rref:
@@ -87,11 +94,10 @@ def is_rref(m):
                 else:
                     is_col_clear = False
                     is_rref = False
-            
-            # Zero row
-            if not(is_col_clear) and np.count_nonzero(m[i,:]) != 0:
-                is_rref = False
 
+            if j == m.shape[1]:
+                reached_zero_row = True
+        
             i += 1
     else:
         is_rref = False
@@ -101,17 +107,6 @@ def is_rref(m):
 def rref(m):
     pass
 
-"""
-[[ 1.   1.  -2.5  1.   2. ]
- [ 0.   0.   2.   3.   4. ]
- [ 0.   2.   3.  -4.   1. ]
- [ 0.  -2.  -1.   7.   3. ]]
-
- [ 1.   1.  -2.5  1.   2. ]
- [ 0.   1.   1.5 -2.   0.5]
- [ 0.   0.   1.   1.5  2. ]
- [ 0.   0.   0.   0.   0. ]
-"""
 
 mA = np.array([ [0, 2, 3, -4, 1],
                 [0, 0, 2, 3, 4],
@@ -131,14 +126,10 @@ mD = np.array([[1,2,4],[0,1,-3],[0,0,1]])
 
 mI = np.array([[1,0,0],[0,1,0],[0,0,1]])
 
-mE = np.array([[1,0,0,0,4],
-               [0,0,1,0,3]])
+mE = np.array([[1,0,0,4],
+               [0,1,0,4],
+               [0,0,1,4],
+               [0,0,0,0]])
 
-print(is_ref(mI))
-print(is_rref(mI))
-
-print(is_ref(mB))
-print(is_rref(mB))
-
-print(is_ref(mI))
-print(is_rref(mI))
+print(is_ref(mE))
+print(is_rref(mE))
